@@ -1,8 +1,6 @@
 package core
 
 import (
-	"text/template"
-
 	"github.com/tabbed/sqlc-go/sdk"
 )
 
@@ -21,11 +19,4 @@ func Imports(filename string) [][]string {
 		return nil
 	}
 	return DefaultImporter.Imports(filename)
-}
-
-var Foo = template.FuncMap{
-	"lowerTitle": LowerTitle,         // sdk.LowerTitle,
-	"comment":    DoubleSlashComment, // sdk.DoubleSlashComment,
-	"imports":    Imports,
-	"offset":     Offset,
 }
