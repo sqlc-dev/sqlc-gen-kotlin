@@ -1,4 +1,4 @@
-package kotlin
+package core
 
 import (
 	plugin "github.com/tabbed/sqlc-go/codegen"

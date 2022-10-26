@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/tabbed/sqlc-go/codegen"
 
-	python "github.com/tabbed/sqlc-gen-python"
+	kotlin "github.com/tabbed/sqlc-gen-kotlin/internal"
 )
 
 func main() {
-	codegen.Run(python.Generate)
+	codegen.Run(kotlin.Generate)
 }

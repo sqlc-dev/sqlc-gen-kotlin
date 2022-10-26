@@ -1,4 +1,4 @@
-package kotlin
+package core
 
 import (
 	"sort"
@@ -7,14 +7,14 @@ import (
 	plugin "github.com/tabbed/sqlc-go/codegen"
 )
 
-type importer struct {
+type Importer struct {
 	Settings    *plugin.Settings
 	DataClasses []Struct
 	Enums       []Enum
 	Queries     []Query
 }
 
-func (i *importer) usesType(typ string) bool {
+func (i *Importer) usesType(typ string) bool {
 	for _, strct := range i.DataClasses {
 		for _, f := range strct.Fields {
 			if f.Type.Name == typ {
@@ -25,7 +25,7 @@ func (i *importer) usesType(typ string) bool {
 	return false
 }
 
-func (i *importer) Imports(filename string) [][]string {
+func (i *Importer) Imports(filename string) [][]string {
 	switch filename {
 	case "Models.kt":
 		return i.modelImports()
@@ -36,7 +36,7 @@ func (i *importer) Imports(filename string) [][]string {
 	}
 }
 
-func (i *importer) interfaceImports() [][]string {
+func (i *Importer) interfaceImports() [][]string {
 	uses := func(name string) bool {
 		for _, q := range i.Queries {
 			if !q.Ret.isEmpty() {
@@ -65,7 +65,7 @@ func (i *importer) interfaceImports() [][]string {
 	return [][]string{stds}
 }
 
-func (i *importer) modelImports() [][]string {
+func (i *Importer) modelImports() [][]string {
 	std := make(map[string]struct{})
 	if i.usesType("Instant") {
 		std["java.time.Instant"] = struct{}{}
@@ -124,7 +124,7 @@ func stdImports(uses func(name string) bool) map[string]struct{} {
 	return std
 }
 
-func (i *importer) queryImports(filename string) [][]string {
+func (i *Importer) queryImports(filename string) [][]string {
 	uses := func(name string) bool {
 		for _, q := range i.Queries {
 			if !q.Ret.isEmpty() {
