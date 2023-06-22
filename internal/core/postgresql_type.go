@@ -3,7 +3,7 @@ package core
 import (
 	"log"
 
-	plugin "github.com/tabbed/sqlc-go/codegen"
+	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
 	"github.com/tabbed/sqlc-go/sdk"
 )
 

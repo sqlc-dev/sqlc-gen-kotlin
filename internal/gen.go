@@ -4,20 +4,34 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"io"
+	_ "embed"
+	"encoding/json"
 	"strings"
+	"text/template"
 
-	easyjson "github.com/mailru/easyjson"
-	plugin "github.com/tabbed/sqlc-go/codegen"
+	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
 
 	"github.com/tabbed/sqlc-gen-kotlin/internal/core"
-	"github.com/tabbed/sqlc-gen-kotlin/internal/tmpl"
+	"github.com/tabbed/sqlc-go/sdk"
 )
 
-func Generate(ctx context.Context, req *plugin.Request) (*plugin.Response, error) {
+//go:embed tmpl/ktmodels.tmpl
+var ktModelsTmpl string
+
+//go:embed tmpl/ktsql.tmpl
+var ktSqlTmpl string
+
+//go:embed tmpl/ktiface.tmpl
+var ktIfaceTmpl string
+
+func Offset(v int) int {
+	return v + 1
+}
+
+func Generate(ctx context.Context, req *plugin.CodeGenRequest) (*plugin.CodeGenResponse, error) {
 	var conf core.Config
 	if len(req.PluginOptions) > 0 {
-		if err := easyjson.Unmarshal(req.PluginOptions, &conf); err != nil {
+		if err := json.Unmarshal(req.PluginOptions, &conf); err != nil {
 			return nil, err
 		}
 	}
@@ -36,6 +50,17 @@ func Generate(ctx context.Context, req *plugin.Request) (*plugin.Response, error
 		Queries:     queries,
 	}
 
+	funcMap := template.FuncMap{
+		"lowerTitle": sdk.LowerTitle,
+		"comment":    sdk.DoubleSlashComment,
+		"imports":    i.Imports,
+		"offset":     Offset,
+	}
+
+	modelsFile := template.Must(template.New("table").Funcs(funcMap).Parse(ktModelsTmpl))
+	sqlFile := template.Must(template.New("table").Funcs(funcMap).Parse(ktSqlTmpl))
+	ifaceFile := template.Must(template.New("table").Funcs(funcMap).Parse(ktIfaceTmpl))
+
 	core.DefaultImporter = i
 
 	tctx := core.KtTmplCtx{
@@ -50,11 +75,11 @@ func Generate(ctx context.Context, req *plugin.Request) (*plugin.Response, error
 
 	output := map[string]string{}
 
-	execute := func(name string, f func(io.Writer, core.KtTmplCtx) error) error {
+	execute := func(name string, t *template.Template) error {
 		var b bytes.Buffer
 		w := bufio.NewWriter(&b)
 		tctx.SourceName = name
-		err := f(w, tctx)
+		err := t.Execute(w, tctx)
 		w.Flush()
 		if err != nil {
 			return err
@@ -66,13 +91,13 @@ func Generate(ctx context.Context, req *plugin.Request) (*plugin.Response, error
 		return nil
 	}
 
-	if err := execute("Models.kt", tmpl.KtModels); err != nil {
+	if err := execute("Models.kt", modelsFile); err != nil {
 		return nil, err
 	}
-	if err := execute("Queries.kt", tmpl.KtIface); err != nil {
+	if err := execute("Queries.kt", ifaceFile); err != nil {
 		return nil, err
 	}
-	if err := execute("QueriesImpl.kt", tmpl.KtSQL); err != nil {
+	if err := execute("QueriesImpl.kt", sqlFile); err != nil {
 		return nil, err
 	}
 

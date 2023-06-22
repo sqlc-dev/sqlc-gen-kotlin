@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	plugin "github.com/tabbed/sqlc-go/codegen"
+	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
 	"github.com/tabbed/sqlc-go/metadata"
 	"github.com/tabbed/sqlc-go/sdk"
 
