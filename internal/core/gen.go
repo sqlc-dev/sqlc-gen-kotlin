@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
-	"github.com/tabbed/sqlc-go/metadata"
-	"github.com/tabbed/sqlc-go/sdk"
+	"github.com/sqlc-dev/sqlc-go/metadata"
+	"github.com/sqlc-dev/sqlc-go/sdk"
 
-	"github.com/tabbed/sqlc-gen-kotlin/internal/inflection"
+	"github.com/sqlc-dev/sqlc-gen-kotlin/internal/inflection"
 )
 
 var ktIdentPattern = regexp.MustCompile("[^a-zA-Z0-9_]+")

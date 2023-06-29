@@ -11,8 +11,8 @@ import (
 
 	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
 
-	"github.com/tabbed/sqlc-gen-kotlin/internal/core"
-	"github.com/tabbed/sqlc-go/sdk"
+	"github.com/sqlc-dev/sqlc-gen-kotlin/internal/core"
+	"github.com/sqlc-dev/sqlc-go/sdk"
 )
 
 //go:embed tmpl/ktmodels.tmpl
