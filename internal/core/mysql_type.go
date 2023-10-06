@@ -2,7 +2,7 @@ package core
 
 import (
 	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
-	"github.com/tabbed/sqlc-go/sdk"
+	"github.com/sqlc-dev/sqlc-go/sdk"
 )
 
 func mysqlType(req *plugin.CodeGenRequest, col *plugin.Column) (string, bool) {
