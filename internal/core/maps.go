@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/tabbed/sqlc-go/sdk"
+	"github.com/sqlc-dev/sqlc-go/sdk"
 )
 
 func DoubleSlashComment(f string) string {
