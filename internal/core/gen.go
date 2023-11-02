@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
-	"github.com/sqlc-dev/sqlc-go/metadata"
-	"github.com/sqlc-dev/sqlc-go/sdk"
+	"github.com/sqlc-dev/plugin-sdk-go/metadata"
+	"github.com/sqlc-dev/plugin-sdk-go/plugin"
+	"github.com/sqlc-dev/plugin-sdk-go/sdk"
 
 	"github.com/sqlc-dev/sqlc-gen-kotlin/internal/inflection"
 )
@@ -230,7 +230,7 @@ func ktEnumValueName(value string) string {
 	return strings.ToUpper(id)
 }
 
-func BuildEnums(req *plugin.CodeGenRequest) []Enum {
+func BuildEnums(req *plugin.GenerateRequest) []Enum {
 	var enums []Enum
 	for _, schema := range req.Catalog.Schemas {
 		if schema.Name == "pg_catalog" || schema.Name == "information_schema" {
@@ -264,9 +264,6 @@ func BuildEnums(req *plugin.CodeGenRequest) []Enum {
 }
 
 func dataClassName(name string, settings *plugin.Settings) string {
-	if rename := settings.Rename[name]; rename != "" {
-		return rename
-	}
 	out := ""
 	for _, p := range strings.Split(name, "_") {
 		out += strings.Title(p)
@@ -278,7 +275,7 @@ func memberName(name string, settings *plugin.Settings) string {
 	return sdk.LowerTitle(dataClassName(name, settings))
 }
 
-func BuildDataClasses(conf Config, req *plugin.CodeGenRequest) []Struct {
+func BuildDataClasses(conf Config, req *plugin.GenerateRequest) []Struct {
 	var structs []Struct
 	for _, schema := range req.Catalog.Schemas {
 		if schema.Name == "pg_catalog" || schema.Name == "information_schema" {
@@ -367,7 +364,7 @@ func (t ktType) IsUUID() bool {
 	return t.Name == "UUID"
 }
 
-func makeType(req *plugin.CodeGenRequest, col *plugin.Column) ktType {
+func makeType(req *plugin.GenerateRequest, col *plugin.Column) ktType {
 	typ, isEnum := ktInnerType(req, col)
 	return ktType{
 		Name:     typ,
@@ -379,7 +376,7 @@ func makeType(req *plugin.CodeGenRequest, col *plugin.Column) ktType {
 	}
 }
 
-func ktInnerType(req *plugin.CodeGenRequest, col *plugin.Column) (string, bool) {
+func ktInnerType(req *plugin.GenerateRequest, col *plugin.Column) (string, bool) {
 	// TODO: Extend the engine interface to handle types
 	switch req.Settings.Engine {
 	case "mysql":
@@ -396,7 +393,7 @@ type goColumn struct {
 	*plugin.Column
 }
 
-func ktColumnsToStruct(req *plugin.CodeGenRequest, name string, columns []goColumn, namer func(*plugin.Column, int) string) *Struct {
+func ktColumnsToStruct(req *plugin.GenerateRequest, name string, columns []goColumn, namer func(*plugin.Column, int) string) *Struct {
 	gs := Struct{
 		Name: name,
 	}
@@ -480,7 +477,7 @@ func parseInts(s []string) ([]int, error) {
 	return refs, nil
 }
 
-func BuildQueries(req *plugin.CodeGenRequest, structs []Struct) ([]Query, error) {
+func BuildQueries(req *plugin.GenerateRequest, structs []Struct) ([]Query, error) {
 	qs := make([]Query, 0, len(req.Queries))
 	for _, query := range req.Queries {
 		if query.Name == "" {

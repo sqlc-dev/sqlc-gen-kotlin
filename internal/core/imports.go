@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
+	"github.com/sqlc-dev/plugin-sdk-go/plugin"
 )
 
 type Importer struct {
