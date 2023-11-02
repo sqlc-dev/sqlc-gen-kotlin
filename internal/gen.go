@@ -9,10 +9,9 @@ import (
 	"strings"
 	"text/template"
 
-	"buf.build/gen/go/sqlc/sqlc/protocolbuffers/go/protos/plugin"
-
+	"github.com/sqlc-dev/plugin-sdk-go/plugin"
+	"github.com/sqlc-dev/plugin-sdk-go/sdk"
 	"github.com/sqlc-dev/sqlc-gen-kotlin/internal/core"
-	"github.com/sqlc-dev/sqlc-go/sdk"
 )
 
 //go:embed tmpl/ktmodels.tmpl
@@ -28,7 +27,7 @@ func Offset(v int) int {
 	return v + 1
 }
 
-func Generate(ctx context.Context, req *plugin.CodeGenRequest) (*plugin.CodeGenResponse, error) {
+func Generate(ctx context.Context, req *plugin.GenerateRequest) (*plugin.GenerateResponse, error) {
 	var conf core.Config
 	if len(req.PluginOptions) > 0 {
 		if err := json.Unmarshal(req.PluginOptions, &conf); err != nil {
@@ -101,7 +100,7 @@ func Generate(ctx context.Context, req *plugin.CodeGenRequest) (*plugin.CodeGenR
 		return nil, err
 	}
 
-	resp := plugin.CodeGenResponse{}
+	resp := plugin.GenerateResponse{}
 
 	for filename, code := range output {
 		resp.Files = append(resp.Files, &plugin.File{
