@@ -1,9 +1,19 @@
-all: sqlc-gen-kotlin sqlc-gen-kotlin.wasm
+.PHONY: build test
 
-sqlc-gen-kotlin:
-	cd plugin && go build -o ~/bin/sqlc-gen-kotlin ./main.go
+build:
+	go build ./...
 
-sqlc-gen-kotlin.wasm:
-	cd plugin && GOOS=wasip1 GOARCH=wasm go build -o sqlc-gen-kotlin.wasm main.go
-	openssl sha256 plugin/sqlc-gen-kotlin.wasm
+test:
+	go test ./...
+
+all: bin/sqlc-gen-kotlin bin/sqlc-gen-kotlin.wasm
+
+bin/sqlc-gen-kotlin: bin go.mod go.sum $(wildcard **/*.go)
+	cd plugin && go build -o ../bin/sqlc-gen-kotlin ./main.go
+
+bin/sqlc-gen-kotlin.wasm: bin/sqlc-gen-kotlin
+	cd plugin && GOOS=wasip1 GOARCH=wasm go build -o ../bin/sqlc-gen-kotlin.wasm main.go
+
+bin:
+	mkdir -p bin
 
