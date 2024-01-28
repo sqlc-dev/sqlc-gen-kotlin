@@ -166,17 +166,16 @@ func jdbcGet(t ktType, idx int) string {
 	if t.IsInstant() {
 		return fmt.Sprintf(`results.getTimestamp(%d).toInstant()`, idx)
 	}
-	if t.IsUUID() {
-		var nullCast string
-		if t.IsNull {
-			nullCast = "?"
-		}
-		return fmt.Sprintf(`results.getObject(%d) as%s %s`, idx, nullCast, t.Name)
-	}
 	if t.IsBigDecimal() {
 		return fmt.Sprintf(`results.getBigDecimal(%d)`, idx)
 	}
-	return fmt.Sprintf(`results.get%s(%d)`, t.Name, idx)
+
+	var nullCast string
+	if t.IsNull {
+		nullCast = "?"
+	}
+
+	return fmt.Sprintf(`results.getObject(%d) as%s %s`, idx, nullCast, t.Name)
 }
 
 func (v QueryValue) ResultSet() string {
