@@ -175,7 +175,7 @@ func jdbcGet(t ktType, idx int) string {
 		nullCast = "?"
 	}
 
-	return fmt.Sprintf(`results.getObject(%d) as%s %s`, idx, nullCast, t.Name)
+	return fmt.Sprintf(`results.getObject(%d) as %s%s`, idx, t.Name, nullCast)
 }
 
 func (v QueryValue) ResultSet() string {
