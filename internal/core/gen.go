@@ -166,17 +166,13 @@ func jdbcGet(t ktType, idx int) string {
 	if t.IsInstant() {
 		return fmt.Sprintf(`results.getTimestamp(%d).toInstant()`, idx)
 	}
-	if t.IsUUID() {
-		var nullCast string
-		if t.IsNull {
-			nullCast = "?"
-		}
-		return fmt.Sprintf(`results.getObject(%d) as%s %s`, idx, nullCast, t.Name)
+
+	var nullCast string
+	if t.IsNull {
+		nullCast = "?"
 	}
-	if t.IsBigDecimal() {
-		return fmt.Sprintf(`results.getBigDecimal(%d)`, idx)
-	}
-	return fmt.Sprintf(`results.get%s(%d)`, t.Name, idx)
+
+	return fmt.Sprintf(`results.getObject(%d) as %s%s`, idx, t.Name, nullCast)
 }
 
 func (v QueryValue) ResultSet() string {
@@ -365,10 +361,6 @@ func (t ktType) IsInstant() bool {
 
 func (t ktType) IsUUID() bool {
 	return t.Name == "UUID"
-}
-
-func (t ktType) IsBigDecimal() bool {
-	return t.Name == "java.math.BigDecimal"
 }
 
 func makeType(req *plugin.GenerateRequest, col *plugin.Column) ktType {

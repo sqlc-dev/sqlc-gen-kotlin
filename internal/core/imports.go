@@ -86,6 +86,9 @@ func (i *Importer) modelImports() [][]string {
 	if i.usesType("UUID") {
 		std["java.util.UUID"] = struct{}{}
 	}
+	if i.usesType("BigDecimal") {
+		std["java.math.BigDecimal"] = struct{}{}
+	}
 
 	stds := make([]string, 0, len(std))
 	for s := range std {
@@ -119,6 +122,9 @@ func stdImports(uses func(name string) bool) map[string]struct{} {
 	}
 	if uses("UUID") {
 		std["java.util.UUID"] = struct{}{}
+	}
+	if uses("BigDecimal") {
+		std["java.math.BigDecimal"] = struct{}{}
 	}
 
 	return std

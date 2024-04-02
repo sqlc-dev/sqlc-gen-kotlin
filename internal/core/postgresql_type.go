@@ -36,7 +36,7 @@ func postgresType(req *plugin.GenerateRequest, col *plugin.Column) (string, bool
 		return "Float", false
 
 	case "pg_catalog.numeric":
-		return "java.math.BigDecimal", false
+		return "BigDecimal", false
 
 	case "bool", "pg_catalog.bool":
 		return "Boolean", false
