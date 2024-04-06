@@ -176,6 +176,9 @@ func jdbcGet(t ktType, idx int) string {
 	if t.IsBigDecimal() {
 		return fmt.Sprintf(`results.getBigDecimal(%d)`, idx)
 	}
+	if t.IsBoolean() && t.IsNull {
+		return fmt.Sprintf(`results.getString(%d)?.toBoolean()`, idx)
+	}
 	return fmt.Sprintf(`results.get%s(%d)`, t.Name, idx)
 }
 
@@ -369,6 +372,10 @@ func (t ktType) IsUUID() bool {
 
 func (t ktType) IsBigDecimal() bool {
 	return t.Name == "java.math.BigDecimal"
+}
+
+func (t ktType) IsBoolean() bool {
+	return t.Name == "Boolean"
 }
 
 func makeType(req *plugin.GenerateRequest, col *plugin.Column) ktType {
