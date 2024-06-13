@@ -1,6 +1,6 @@
 module github.com/sqlc-dev/sqlc-gen-kotlin
 
-go 1.19
+go 1.21
 
 require (
 	github.com/jinzhu/inflection v1.0.0

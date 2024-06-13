@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -71,6 +73,21 @@ func (v QueryValue) Type() string {
 		return v.Struct.Name
 	}
 	panic("no type for QueryValue: " + v.Name)
+}
+
+// getSchemasToSkip Returns a list of schemas which should not be included in the generated output
+func getSchemasToSkip(req *plugin.GenerateRequest) []string {
+	switch req.Settings.Engine {
+	case "postgresql":
+		return []string{"pg_catalog", "information_schema"}
+	case "mysql":
+		return []string{"information_schema", "performance_schema", "sys", "mysql"}
+	case "sqlite":
+		return []string{}
+	default:
+		log.Printf("WARN internal/codegen/golang/result.go:getSchemasToSkip unhandled engine: %s\n", req.Settings.Engine)
+		return []string{}
+	}
 }
 
 func jdbcSet(t ktType, idx int, name string) string {
@@ -235,8 +252,10 @@ func ktEnumValueName(value string) string {
 
 func BuildEnums(req *plugin.GenerateRequest) []Enum {
 	var enums []Enum
+	schemasToSkip := getSchemasToSkip(req)
+
 	for _, schema := range req.Catalog.Schemas {
-		if schema.Name == "pg_catalog" || schema.Name == "information_schema" {
+		if slices.Contains(schemasToSkip, schema.Name) {
 			continue
 		}
 		for _, enum := range schema.Enums {
@@ -280,8 +299,10 @@ func memberName(name string, settings *plugin.Settings) string {
 
 func BuildDataClasses(conf Config, req *plugin.GenerateRequest) []Struct {
 	var structs []Struct
+	schemasToSkip := getSchemasToSkip(req)
+
 	for _, schema := range req.Catalog.Schemas {
-		if schema.Name == "pg_catalog" || schema.Name == "information_schema" {
+		if slices.Contains(schemasToSkip, schema.Name) {
 			continue
 		}
 		for _, table := range schema.Tables {
