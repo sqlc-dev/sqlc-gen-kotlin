@@ -368,7 +368,7 @@ func (t ktType) IsUUID() bool {
 }
 
 func (t ktType) IsBigDecimal() bool {
-	return t.Name == "java.math.BigDecimal"
+	return t.Name == "BigDecimal"
 }
 
 func makeType(req *plugin.GenerateRequest, col *plugin.Column) ktType {
