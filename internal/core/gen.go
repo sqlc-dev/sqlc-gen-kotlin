@@ -96,7 +96,11 @@ func jdbcSet(t ktType, idx int, name string) string {
 	if t.IsUUID() {
 		return fmt.Sprintf("stmt.setObject(%d, %s)", idx, name)
 	}
-	return fmt.Sprintf("stmt.set%s(%d, %s)", t.Name, idx, name)
+	if t.IsNull && t.PrimitiveType != "" {
+		return fmt.Sprintf("if (%[3]s != null) stmt.set%[1]s(%[2]d, %[3]s) else stmt.setNull(%[2]d, Types.%[4]s)", t.Name, idx, name, t.PrimitiveType)
+	} else {
+		return fmt.Sprintf("stmt.set%s(%d, %s)", t.Name, idx, name)
+	}
 }
 
 type Params struct {
@@ -320,12 +324,13 @@ func BuildDataClasses(conf Config, req *plugin.GenerateRequest) []Struct {
 }
 
 type ktType struct {
-	Name     string
-	IsEnum   bool
-	IsArray  bool
-	IsNull   bool
-	DataType string
-	Engine   string
+	Name          string
+	IsEnum        bool
+	IsArray       bool
+	IsNull        bool
+	PrimitiveType string
+	DataType      string
+	Engine        string
 }
 
 func (t ktType) String() string {
@@ -374,12 +379,13 @@ func (t ktType) IsBigDecimal() bool {
 func makeType(req *plugin.GenerateRequest, col *plugin.Column) ktType {
 	typ, isEnum := ktInnerType(req, col)
 	return ktType{
-		Name:     typ,
-		IsEnum:   isEnum,
-		IsArray:  col.IsArray,
-		IsNull:   !col.NotNull,
-		DataType: sdk.DataType(col.Type),
-		Engine:   req.Settings.Engine,
+		Name:          typ,
+		IsEnum:        isEnum,
+		IsArray:       col.IsArray,
+		IsNull:        !col.NotNull,
+		PrimitiveType: ktPrimitiveType(typ),
+		DataType:      sdk.DataType(col.Type),
+		Engine:        req.Settings.Engine,
 	}
 }
 
@@ -392,6 +398,25 @@ func ktInnerType(req *plugin.GenerateRequest, col *plugin.Column) (string, bool)
 		return postgresType(req, col)
 	default:
 		return "Any", false
+	}
+}
+
+func ktPrimitiveType(t string) string {
+	switch t {
+	case "Int":
+		return "INTEGER"
+	case "Double":
+		return "DOUBLE"
+	case "Long":
+		return "BIGINT"
+	case "Short":
+		return "SMALLINT"
+	case "Float":
+		return "REAL"
+	case "Boolean":
+		return "BOOLEAN"
+	default:
+		return ""
 	}
 }
 
