@@ -79,9 +79,17 @@ func jdbcSet(t ktType, idx int, name string) string {
 	}
 	if t.IsEnum {
 		if t.Engine == "postgresql" {
-			return fmt.Sprintf("stmt.setObject(%d, %s.value, %s)", idx, name, "Types.OTHER")
+			if t.IsNull {
+				return fmt.Sprintf("stmt.setObject(%d, %s?.value, %s)", idx, name, "Types.OTHER")
+			} else {
+				return fmt.Sprintf("stmt.setObject(%d, %s.value, %s)", idx, name, "Types.OTHER")
+			}
 		} else {
-			return fmt.Sprintf("stmt.setString(%d, %s.value)", idx, name)
+			if t.IsNull {
+				return fmt.Sprintf("stmt.setString(%d, %s?.value)", idx, name)
+			} else {
+				return fmt.Sprintf("stmt.setString(%d, %s.value)", idx, name)
+			}
 		}
 	}
 	if t.IsArray {
@@ -155,7 +163,11 @@ func jdbcGet(t ktType, idx int) string {
 		return fmt.Sprintf(`(results.getArray(%d).array as Array<String>).map { v -> %s.lookup(v)!! }.toList()`, idx, t.Name)
 	}
 	if t.IsEnum {
-		return fmt.Sprintf("%s.lookup(results.getString(%d))!!", t.Name, idx)
+		if t.IsNull {
+			return fmt.Sprintf("%s.lookup(results.getString(%d))", t.Name, idx)
+		} else {
+			return fmt.Sprintf("%s.lookup(results.getString(%d))!!", t.Name, idx)
+		}
 	}
 	if t.IsArray {
 		return fmt.Sprintf(`(results.getArray(%d).array as Array<%s>).toList()`, idx, t.Name)

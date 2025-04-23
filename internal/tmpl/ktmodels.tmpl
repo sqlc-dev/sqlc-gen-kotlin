@@ -19,7 +19,7 @@ enum class {{.Name}}(val value: String) {
 
   companion object {
     private val map = {{.Name}}.values().associateBy({{.Name}}::value)
-    fun lookup(value: String) = map[value]
+    fun lookup(value: String?) = map[value]
   }
 }
 {{end}}
