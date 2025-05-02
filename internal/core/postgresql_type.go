@@ -11,31 +11,31 @@ func postgresType(req *plugin.GenerateRequest, col *plugin.Column) (string, bool
 	columnType := sdk.DataType(col.Type)
 
 	switch columnType {
-	case "serial", "pg_catalog.serial4":
+	case "serial", "serial4", "pg_catalog.serial4":
 		return "Int", false
 
-	case "bigserial", "pg_catalog.serial8":
+	case "bigserial", "serial8", "pg_catalog.serial8":
 		return "Long", false
 
-	case "smallserial", "pg_catalog.serial2":
+	case "smallserial", "serial2", "pg_catalog.serial2":
 		return "Short", false
 
 	case "integer", "int", "int4", "pg_catalog.int4":
 		return "Int", false
 
-	case "bigint", "pg_catalog.int8":
+	case "bigint", "int8", "pg_catalog.int8":
 		return "Long", false
 
-	case "smallint", "pg_catalog.int2":
+	case "smallint", "int2", "pg_catalog.int2":
 		return "Short", false
 
-	case "float", "double precision", "pg_catalog.float8":
+	case "float", "double precision", "float8", "pg_catalog.float8":
 		return "Double", false
 
-	case "real", "pg_catalog.float4":
+	case "real", "float4", "pg_catalog.float4":
 		return "Float", false
 
-	case "pg_catalog.numeric":
+	case "numeric", "pg_catalog.numeric":
 		return "java.math.BigDecimal", false
 
 	case "bool", "pg_catalog.bool":
@@ -52,13 +52,13 @@ func postgresType(req *plugin.GenerateRequest, col *plugin.Column) (string, bool
 		// Date and time mappings from https://jdbc.postgresql.org/documentation/head/java8-date-time.html
 		return "LocalDate", false
 
-	case "pg_catalog.time", "pg_catalog.timetz":
+	case "time", "pg_catalog.time", "timetz", "pg_catalog.timetz":
 		return "LocalTime", false
 
-	case "pg_catalog.timestamp":
+	case "timestamp", "pg_catalog.timestamp":
 		return "LocalDateTime", false
 
-	case "pg_catalog.timestamptz", "timestamptz":
+	case "timestamptz", "pg_catalog.timestamptz":
 		// TODO
 		return "OffsetDateTime", false
 
