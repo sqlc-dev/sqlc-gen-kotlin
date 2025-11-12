@@ -88,7 +88,7 @@ func postgresType(req *plugin.GenerateRequest, col *plugin.Column) (string, bool
 				continue
 			}
 			for _, enum := range schema.Enums {
-				if columnType == enum.Name {
+				if col.Type.Name == enum.Name && col.Type.Schema == schema.Name {
 					if schema.Name == req.Catalog.DefaultSchema {
 						return dataClassName(enum.Name, req.Settings), true
 					}
